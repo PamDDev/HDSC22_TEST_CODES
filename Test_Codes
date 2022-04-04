@@ -35,6 +35,8 @@ IElecData.head(2757)
 IElecDataH=IElecData.head(2757)
 IElecDataH
 
+IElecDataCH.describe()
+
 
 # In[ ]:
 
@@ -48,6 +50,8 @@ IElecDataH
 IElecData.tail(2757)
 IElecDataT=IElecData.tail(2757)
 IElecDataT
+
+IElecDataCT.describe()
 
 
 # In[ ]:
