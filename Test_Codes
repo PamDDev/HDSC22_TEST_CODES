@@ -1,0 +1,284 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# In[1]:
+
+
+import numpy as np 
+import pandas as pd 
+import matplotlib.pyplot as plt
+get_ipython().run_line_magic('matplotlib', 'inline')
+from matplotlib.pylab import rcParams
+rcParams['figure.figsize']=10,6
+import seaborn as sns
+ElecData=pd.read_csv("C:/Users/OVC 2/Desktop/Series_Data.csv")
+
+
+# In[2]:
+
+
+ElecData
+from datetime import datetime
+IElecData=ElecData.set_index(['FullDate'])
+
+
+# In[ ]:
+
+
+#test_data
+
+
+# In[3]:
+
+
+IElecData.head(2757)
+IElecDataH=IElecData.head(2757)
+IElecDataH
+
+
+# In[ ]:
+
+
+#train_data
+
+
+# In[5]:
+
+
+IElecData.tail(2757)
+IElecDataT=IElecData.tail(2757)
+IElecDataT
+
+
+# In[ ]:
+
+
+#check for missing value
+
+
+# In[6]:
+
+
+IElecData.isnull().sum()
+
+
+# In[7]:
+
+
+plt.xlabel( 'ElecPrice' ) 
+plt.ylabel( 'FullDate' )
+plt.plot(IElecDataH)
+
+
+# In[10]:
+
+
+ElecDataC=ElecData.copy()
+ElecDataC[ "FullDate" ] = pd.to_datetime(ElecDataC[ "FullDate" ])
+ElecDataC.head(2757)
+ElecDataCH=ElecDataC.head(2757)
+ElecDataCH
+
+
+# In[11]:
+
+
+IElecDataC=ElecDataC.set_index(['FullDate'])
+IElecDataCH=IElecDataC.head(2757)
+#Train_Set
+IElecDataCH
+
+
+# In[19]:
+
+
+#Test_Set
+IElecDataCT=IElecDataC.tail(2757)
+IElecDataCT
+
+
+# In[10]:
+
+
+plt.xlabel( 'FullDate' ) 
+plt.ylabel( 'ElecPrice' )
+plt.plot(IElecDataCH)
+
+
+# In[20]:
+
+
+plt.xlabel( 'FullDate' ) 
+plt.ylabel( 'ElecPrice' )
+plt.plot(IElecDataCT)
+
+
+# In[18]:
+
+
+#Estimating Trend
+IElecDataCH_Log=np.log(IElecDataCH)
+plt.plot(IElecDataCH_Log)
+
+
+# In[21]:
+
+
+IElecDataCT_Log=np.log(IElecDataCT)
+plt.plot(IElecDataCT_Log)
+
+
+# In[14]:
+
+
+IElecDataC_Log=np.log(IElecDataC)
+plt.plot(IElecDataC_Log)
+
+
+# In[22]:
+
+
+IElecDataCMA = IElecDataCH_Log[ 'ElecPrice' ].rolling( 12 ).mean()
+print(IElecDataCMA)
+plt.plot(IElecDataCMA)
+plt.plot(IElecDataCMA, color='green')
+
+
+# In[29]:
+
+
+IElecDataCMA = IElecDataC_Log[ 'ElecPrice' ].rolling( 12 ).mean()
+print(IElecDataCMA)
+plt.plot(IElecDataCMA)
+plt.plot(IElecDataCMA, color='red')
+
+
+# In[23]:
+
+
+IElecDataCMA = IElecDataCT_Log[ 'ElecPrice' ].rolling( 12 ).mean()
+print(IElecDataCMA)
+plt.plot(IElecDataCMA)
+plt.plot(IElecDataCMA, color='blue')
+
+
+# In[24]:
+
+
+import statsmodels.api as sm 
+from matplotlib.pylab import rcParams 
+rcParams[ 'figure.figsize' ] = 15 , 8 
+decompose_IElecDataC = sm.tsa.seasonal_decompose(IElecDataC[ 'ElecPrice' ], model= 'additive' ) 
+decompose_IElecDataC.plot() 
+plt.show()
+
+
+# In[25]:
+
+
+import statsmodels.api as sm 
+from matplotlib.pylab import rcParams 
+rcParams[ 'figure.figsize' ] = 15 , 8 
+decompose_IElecDataCH = sm.tsa.seasonal_decompose(IElecDataCH[ 'ElecPrice' ], model= 'additive' ) 
+decompose_IElecDataCH.plot() 
+plt.show()
+
+
+# In[26]:
+
+
+import statsmodels.api as sm 
+from matplotlib.pylab import rcParams 
+rcParams[ 'figure.figsize' ] = 15 , 8 
+decompose_IElecDataCT = sm.tsa.seasonal_decompose(IElecDataCT[ 'ElecPrice' ], model= 'additive' ) 
+decompose_IElecDataCT.plot() 
+plt.show()
+
+
+# In[27]:
+
+
+from statsmodels.tsa.stattools import adfuller
+adf_result = adfuller(IElecDataC[ 'ElecPrice' ]) 
+print( f'ADF Statistic: {adf_result[ 0 ]} ' ) 
+print( f'p-value: {adf_result[ 0:4 ]} ' ) 
+print( f'No. of lags used: {adf_result[ 2 ]} ' ) 
+print( f'No. of observations used : {adf_result[ 3 ]} ' ) 
+print( 'Critical Values:' ) 
+for k, v in adf_result[ 4 ].items(): 
+ print( f' {k} : {v} ' ) 
+
+
+# In[36]:
+
+
+from statsmodels.tsa.stattools import adfuller
+adf_result = adfuller(IElecDataCH[ 'ElecPrice' ]) 
+print( f'ADF Statistic: {adf_result[ 0 ]} ' ) 
+print( f'p-value: {adf_result[ 1 ]} ' ) 
+print( f'No. of lags used: {adf_result[ 2 ]} ' ) 
+print( f'No. of observations used : {adf_result[ 3 ]} ' ) 
+print( 'Critical Values:' ) 
+for k, v in adf_result[ 4 ].items(): 
+ print( f' {k} : {v} ' ) 
+
+
+# In[45]:
+
+
+from statsmodels.tsa.stattools import acf, pacf 
+from statsmodels.graphics.tsaplots import plot_acf, plot_pacf 
+ 
+lag_acf=acf(IElecDataCH_Log['ElecPrice'], nlags=20)
+lag_pacf=pacf(IElecDataCH_Log['ElecPrice'], nlags=20)
+#ACF
+plt.plot(lag_acf)
+#PACF
+plt.plot(lag_pacf)
+
+
+# In[ ]:
+
+
+#PACF 
+plot_pacf(IEDCH_diff, lags = range( 0 , 20 )) 
+plt.show() 
+
+
+# In[56]:
+
+
+IEDCH_log = np.log(IElecDataCH) 
+IEDCH_diff = IEDCH_log.diff(periods= 1 ) 
+plt.plot(IEDCH_diff.index, IEDCH_diff.ElecPrice, '-' ) 
+plt.plot(IEDCH_diff.rolling( 12 ).mean(), color= 'red' )
+
+
+# In[5]:
+
+
+import warnings;
+warnings.simplefilter('ignore')
+
+
+# In[6]:
+
+
+pip install pystan fbprophet
+
+
+# In[29]:
+
+
+#importing facebook prophet
+
+from fbprophet import Prophet
+IEDCH_model = Prophet() 
+IEDCH_model.fit(IElecDataCH) 
+
+
+# In[ ]:
+
+
+
+
